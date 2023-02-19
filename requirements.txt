@@ -17,3 +17,6 @@ typing_extensions==4.4.0
 urllib3==1.26.14
 uWSGI==2.0.21
 wrapt==1.14.1
+# tracing
+# opentelemetry-sdk==1.16.0
+# opentelemetry-instrumentation-django==0.37b0

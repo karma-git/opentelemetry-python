@@ -1,41 +1,36 @@
-FROM alpine:3.14
-
-# ARG SU_PW
-
-RUN apk add --no-cache \
-    # python3~=3.9.5 \
-    python3 \
-    # py3-pip~=20.3.4
-    py3-pip
+FROM alpine:3.17.2
 
 COPY ./requirements.txt ./requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apk add --no-cache \
+    python3~=3.10.10 \
+    py3-pip~=22.3.1 \
+  && apk add --no-cache --virtual .build-deps \
+    gcc~=12.2.1 \
+    libffi-dev~=3.4.4 \
+    musl-dev~=1.2.3 \
+    openssl-dev~=3.0.8 \
+    python3-dev~=3.10.10 \
+    rust~=1.64.0 \
+  && pip install --no-cache-dir -r requirements.txt \
+  && apk del .build-deps
 
-# RUN addgroup --gid 1000 app \
-#   && adduser \
-#     --uid 1000 \
-#     --home /home/app \
-#     --shell /bin/ash \
-#     --ingroup app \
-#     --disabled-password \
-#     app
+RUN addgroup --gid 1000 app \
+  && adduser \
+    --uid 1000 \
+    --home /home/app \
+    --shell /bin/ash \
+    --ingroup app \
+    --disabled-password \
+    app
 
 COPY ./ /home/app
 
-# WORKDIR /home/app
+WORKDIR /home/app
 
-# USER app
-
-# # Make DB schema and create superuser
-# RUN python3 manage.py migrate \
-#   # KeyError exception if python doesn't find SU_PW env var
-#   && python3 manage.py shell -c \
-#     "from store.models import User; import os; \
-#     User.objects.create_superuser('admin', 'admin@example.com', os.environ['SU_PW'])"
+USER app
 
 EXPOSE 8080
 
-# TODO generate fake data
 ENTRYPOINT ["/usr/bin/python3"]
-CMD ["manage.py", "runserver", "0.0.0.0:8080", "--noreload"]
+CMD ["manage.py", "runserver", "0.0.0.0:8000", "--noreload"]
